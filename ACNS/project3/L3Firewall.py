@@ -206,11 +206,13 @@ class Firewall (EventMixin):
 				elif srcMAC not in MACdata and numOfMAC < self.numberOfMacLimit:
 					if srcIP not in MACdata.values():
 						self.portSecurityTable[ovsIngressPort][srcMAC] = srcIP
-					elif srcMAC not in self.blockedMacTable:
+					else: 
 						log.debug("***** MAC spoofing attack deteced, source IP {} already binded with MAC {} on port {}".format(srcIP, srcMAC, ovsIngressPort))
-						self.blockedMacTable.append(srcMAC)
-						self.installFlow(event, 65530, srcMAC, None, None, None, None, None, None)
+						if srcMAC not in self.blockedMacTable:
+							self.blockedMacTable.append(srcMAC)
+							self.installFlow(event, 65530, srcMAC, None, None, None, None, None, None)
 				else:
+					log.debug("***** IP spoofing attack deteced, source IP {} already binded with MAC {} on port {}".format(srcIP, srcMAC, ovsIngressPort))
 					if srcIP != MACdata[srcMAC] and srcMAC not in self.blockedMacTable:
 						self.blockedMacTable.append(srcMAC)
 						self.installFlow(event, 65530, srcMAC, None, None, None, None, None, None)
